@@ -5,43 +5,34 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-/**
- * @ORM\Entity()
- * @ORM\Table(name="actor")
- */
+
+#[ORM\Entity]
+#[ORM\Table(name: 'actor')]
 class Actor
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="bigint")
-     * @ORM\GeneratedValue(strategy="NONE")
-     */
-    public int $id;
+    #[ORM\Column(type: 'bigint')]
+    #[ORM\GeneratedValue(strategy: 'NONE')]
+    #[ORM\Id]
+    public string $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column]
     public string $login;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column]
     public string $url;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column]
     public string $avatarUrl;
 
     public function __construct(int $id, string $login, string $url, string $avatarUrl)
     {
-        $this->id = $id;
+        $this->id = (string) $id;
         $this->login = $login;
         $this->url = $url;
         $this->avatarUrl = $avatarUrl;
     }
 
-    public function id(): int
+    public function id(): string
     {
         return $this->id;
     }
@@ -50,7 +41,6 @@ class Actor
     {
         return $this->login;
     }
-
 
     public function url(): string
     {
@@ -62,6 +52,9 @@ class Actor
         return $this->avatarUrl;
     }
 
+    /**
+     * @param array{id: int, login: string, url: string, avatar_url: string} $data
+     */
     public static function fromArray(array $data): self
     {
         return new self(
@@ -71,5 +64,4 @@ class Actor
             $data['avatar_url']
         );
     }
-
 }

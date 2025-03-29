@@ -2,15 +2,11 @@
 
 namespace App\Dto;
 
+use DateTimeImmutable;
+
 class SearchInput
 {
-    /**
-     * @var \DateTimeImmutable
-     */
-    public $date;
+    public DateTimeImmutable $date;
 
-    /**
-     * @var string
-     */
-    public $keyword;
+    public string $keyword;
 }

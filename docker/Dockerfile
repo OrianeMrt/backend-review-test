@@ -18,7 +18,7 @@ RUN USER=docker && \
 
 # Install waitforit (https://github.com/maxcnunes/waitforit)
 RUN \
-    wget -O /usr/local/bin/waitforit https://github.com/maxcnunes/waitforit/releases/download/v2.4.1/waitforit-linux_amd64 && \
+    wget -O /usr/local/bin/waitforit https://github.com/maxclaus/waitforit/releases/download/v2.4.1/waitforit-linux_amd64 && \
     chmod +x /usr/local/bin/waitforit
 
 # Install make
@@ -27,6 +27,9 @@ RUN apk add --no-cache make
 # Install php extensions
 RUN apk add --no-cache postgresql-dev bash \
     && docker-php-ext-install -j$(nproc) pdo_pgsql
+
+# Increase Memory Limit
+RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini
 
 # Installing Symfony CLI
 ENV SYMFONY_ALLOW_ALL_IP=true
