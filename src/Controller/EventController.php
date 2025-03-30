@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Dto\EventInput;
+use App\Dto\EventCommentInput;
 use App\Repository\ReadEventRepository;
 use App\Repository\WriteEventRepository;
 use Exception;
@@ -25,7 +25,7 @@ readonly class EventController
     #[Route(path: '/api/event/{id}/update', name: 'api_commit_update', methods: ['PUT'])]
     public function update(Request $request, int $id, ValidatorInterface $validator): Response
     {
-        $eventInput = $this->serializer->deserialize($request->getContent(), EventInput::class, 'json');
+        $eventInput = $this->serializer->deserialize($request->getContent(), EventCommentInput::class, 'json');
 
         $errors = $validator->validate($eventInput);
 

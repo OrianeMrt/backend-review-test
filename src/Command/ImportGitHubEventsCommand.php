@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Message\FetchHourlyGithubEvent;
+use DateMalformedStringException;
+use Symfony\Component\Clock\DatePoint;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * This command must import GitHub events.
@@ -16,11 +21,43 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:import-github-events', description: 'Import GH events')]
 class ImportGitHubEventsCommand extends Command
 {
+    public function __construct(private MessageBusInterface $messageBus, ?string $name = null)
+    {
+        parent::__construct($name);
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addArgument('date', InputArgument::OPTIONAL, 'Date to import events (format : Y-m-d)', date('Y-m-d'))
+            ->addArgument('hour', InputArgument::OPTIONAL, 'Hour for import events');
+    }
+
+    /**
+     * @throws DateMalformedStringException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Let's rock !
-        // It's up to you now
+        $date = DatePoint::createFromFormat('Y-m-d', $input->getArgument('date'));
 
-        return Command::FAILURE;
+        $hour = $input->getArgument('hour');
+
+        if (null !== $hour) {
+            $this->createDateAndSubmitMessage($date, $hour);
+        } else {
+            for ($i = 0; $i <= 23; ++$i) {
+                $this->createDateAndSubmitMessage($date, $i);
+            }
+        }
+
+        $output->writeln('Import in progress...');
+
+        return Command::SUCCESS;
+    }
+
+    private function createDateAndSubmitMessage(DatePoint $date, mixed $hour): void
+    {
+        $date = $date->setTime((int) $hour, 0);
+        $this->messageBus->dispatch(new FetchHourlyGithubEvent($date));
     }
 }
