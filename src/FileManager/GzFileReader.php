@@ -3,24 +3,23 @@
 namespace App\FileManager;
 
 use App\FileManager\Exceptions\UnreadableFileException;
+use Generator;
 
 class GzFileReader
 {
-    public function read(string $filePath): string
+    public function read(string $filePath): Generator
     {
-        $file = gzopen($filePath, 'r');
+        $handle = gzopen($filePath, 'r');
 
-        if (false === $file) {
+        if (false === $handle) {
             throw new UnreadableFileException('Could not read file: '.$filePath);
         }
-        $content = '';
+        $content = [];
 
-        while (!gzeof($file)) {
-            $content .= gzread($file, 1024);
+        while (!gzeof($handle)) {
+            yield gzread($handle, 8192);
         }
 
-        gzclose($file);
-
-        return $content;
+        gzclose($handle);
     }
 }

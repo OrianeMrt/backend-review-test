@@ -33,8 +33,8 @@ class GithubArchiveFileFetcher
 
         $tempFile = (new TempFileCreator())->createTempFile('gharchive', $content);
 
-        $jsonContent = (new GzFileReader())->read($tempFile);
+        $content = (new GzFileReader())->read($tempFile);
 
-        return (new FileCreator())->createFile($this->ghArchiveFileDir, "$formattedDate.json", $jsonContent);
+        return (new FileCreator())->createFile($this->ghArchiveFileDir, "$formattedDate.json", $content);
     }
 }

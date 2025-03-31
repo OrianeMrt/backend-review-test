@@ -2,11 +2,15 @@
 
 namespace App\Dto;
 
+use App\Mapper\Exception\UnwantedGithubEventException;
+use App\Mapper\GithubEventTypeMapper;
 use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class FullEventIntput
 {
+    public const string VALID_EVENT = 'ValidEvent';
+
     #[Assert\NotNull]
     #[Assert\Positive]
     public string $id;
@@ -33,6 +37,8 @@ class FullEventIntput
 
     /**
      * @param array<mixed> $payload
+     *
+     * @throws UnwantedGithubEventException
      */
     public function __construct(
         string $id,
@@ -45,7 +51,7 @@ class FullEventIntput
         ?string $comment = null,
     ) {
         $this->id = $id;
-        $this->type = $type;
+        $this->type = GithubEventTypeMapper::map($type);
         $this->actor = $actor;
         $this->repo = $repo;
         $this->payload = $payload;

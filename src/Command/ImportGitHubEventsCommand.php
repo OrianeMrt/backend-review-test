@@ -38,26 +38,30 @@ class ImportGitHubEventsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $date = DatePoint::createFromFormat('Y-m-d', $input->getArgument('date'));
+        $inputDate = $input->getArgument('date');
+        $date = DatePoint::createFromFormat('Y-m-d', $inputDate);
 
         $hour = $input->getArgument('hour');
 
         if (null !== $hour) {
-            $this->createDateAndSubmitMessage($date, $hour);
+            $date = $date->setTime((int) $hour, 0);
+            $this->createDateAndSubmitMessage($date);
         } else {
             for ($i = 0; $i <= 23; ++$i) {
-                $this->createDateAndSubmitMessage($date, $i);
+                $date = $date->setTime($i, 0);
+                $this->createDateAndSubmitMessage($date);
             }
         }
 
-        $output->writeln('Import in progress...');
+        $dateFormat = $hour ? $date->format('\f\r\o\m Y-m-d \a\t ha') : $date->format('\a\t Y-m-d');
+
+        $output->writeln("Import $dateFormat launched !");
 
         return Command::SUCCESS;
     }
 
-    private function createDateAndSubmitMessage(DatePoint $date, mixed $hour): void
+    private function createDateAndSubmitMessage(DatePoint $date): void
     {
-        $date = $date->setTime((int) $hour, 0);
         $this->messageBus->dispatch(new FetchHourlyGithubEvent($date));
     }
 }
