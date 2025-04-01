@@ -19,7 +19,7 @@ readonly class SearchController
     #[Route(path: '/api/search', name: 'api_search', methods: ['GET'])]
     public function searchCommits(Request $request): JsonResponse
     {
-        $searchInput = $this->serializer->deserialize($request->query->all(), SearchInput::class, JsonEncoder::FORMAT);
+        $searchInput = $this->serializer->deserialize($request->getContent(), SearchInput::class, JsonEncoder::FORMAT);
 
         $countByType = $this->repository->countByType($searchInput);
 
