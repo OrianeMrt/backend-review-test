@@ -2,9 +2,9 @@
 
 namespace App\Repository;
 
-use App\Dto\EventInput;
+use App\Dto\EventCommentInput;
 
 interface WriteEventRepository
 {
-    public function update(EventInput $authorInput, int $id): void;
+    public function update(EventCommentInput $authorInput, int $id): void;
 }

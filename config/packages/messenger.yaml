@@ -1,0 +1,37 @@
+framework:
+    messenger:
+        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+        # failure_transport: failed
+
+        transports:
+            async_insert_event:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                  queue_name: insert_event
+
+            async_batch_file:
+              dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+              options:
+                queue_name: batch_file
+              retry_strategy:
+                max_retries: 3
+                delay: 1000
+
+            async_fetch_file:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                  queue_name: fetch_file
+
+        routing:
+            'App\Message\FetchHourlyGithubEvent': async_fetch_file
+            'App\Message\ImportGithubEvent': async_insert_event
+            'App\Message\ReadGithubEventBatch': async_batch_file
+
+
+when@test:
+   framework:
+       messenger:
+           transports:
+              async_insert_event: 'in-memory://'
+              async_batch_file: 'in-memory://'
+#              async_fetch_file: 'in-memory://' // Commented to not launch it while command is being tested
