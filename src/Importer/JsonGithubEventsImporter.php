@@ -5,14 +5,14 @@ namespace App\Importer;
 use App\Dto\FullEventIntput;
 use App\Importer\Exception\InvalidGithubEventData;
 use App\Mapper\Exception\UnwantedGithubEventException;
-use App\Repository\DbalFullEventWriter;
+use App\Repository\FullEventWriterInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class JsonGithubEventsImporter
 {
-    public function __construct(private SerializerInterface $serializer, private ValidatorInterface $validator, private DbalFullEventWriter $dbalFullEventWriter)
+    public function __construct(private SerializerInterface $serializer, private ValidatorInterface $validator, private FullEventWriterInterface $dbalFullEventWriter)
     {
     }
 

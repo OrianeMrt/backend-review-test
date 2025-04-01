@@ -33,6 +33,6 @@ class GithubEventFileBatchReader
             ++$this->iteration;
         }
 
-        return $this->iteration > 0 && false !== $lastOffset ? $lastOffset : null;
+        return $this->iteration > 0 && false !== $lastOffset && !$file->eof() ? $lastOffset : null;
     }
 }

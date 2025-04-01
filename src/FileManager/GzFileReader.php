@@ -14,7 +14,6 @@ class GzFileReader
         if (false === $handle) {
             throw new UnreadableFileException('Could not read file: '.$filePath);
         }
-        $content = [];
 
         while (!gzeof($handle)) {
             yield gzread($handle, 8192);

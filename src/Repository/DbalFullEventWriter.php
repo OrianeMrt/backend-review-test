@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
-final class DbalFullEventWriter
+final class DbalFullEventWriter implements FullEventWriterInterface
 {
     /**
      * @param iterable<FullEventDbalWriterInterface> $dbalWriteFullEventObjectRepository

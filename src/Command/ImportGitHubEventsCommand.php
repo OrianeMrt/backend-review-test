@@ -18,9 +18,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * This command must import GitHub events.
  * You can add the parameters and code you want in this command to meet the need.
  */
-#[AsCommand(name: 'app:import-github-events', description: 'Import GH events')]
+#[AsCommand(name: self::NAME, description: 'Import GH events')]
 class ImportGitHubEventsCommand extends Command
 {
+    public const string NAME = 'app:import-github-events';
+
     public function __construct(private MessageBusInterface $messageBus, ?string $name = null)
     {
         parent::__construct($name);

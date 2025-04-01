@@ -8,6 +8,6 @@ class InvalidGithubEventData extends Exception
 {
     public function __construct()
     {
-        parent::__construct('Invaid Github Events data');
+        parent::__construct('Invalid Github Events data');
     }
 }
