@@ -7,8 +7,11 @@ use Doctrine\DBAL\Connection;
 
 readonly class DbalReadEventRepository implements ReadEventRepository
 {
+    private string $dateFormat;
+
     public function __construct(private Connection $connection)
     {
+        $this->dateFormat = $this->connection->getDatabasePlatform()->getDateTimeFormatString();
     }
 
     public function countAll(SearchInput $searchInput): int
@@ -17,11 +20,12 @@ readonly class DbalReadEventRepository implements ReadEventRepository
         SELECT sum(count) as count
         FROM event
         WHERE date(create_at) = :date
-        AND payload like %{$searchInput->keyword}%
+        AND payload::text like :keyword
 SQL;
 
         return (int) $this->connection->fetchOne($sql, [
-            'date' => $searchInput->date,
+            'date' => $searchInput->date->format($this->dateFormat),
+            'keyword' => "%$searchInput->keyword%",
         ]);
     }
 
@@ -34,12 +38,13 @@ SQL;
             SELECT type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            AND payload::text like :keyword
             GROUP BY type
 SQL;
 
         return $this->connection->fetchAllKeyValue($sql, [
-            'date' => $searchInput->date,
+            'date' => $searchInput->date->format($this->dateFormat),
+            'keyword' => "%$searchInput->keyword%",
         ]);
     }
 
@@ -52,12 +57,13 @@ SQL;
             SELECT extract(hour from create_at) as hour, type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            AND payload::text like :keyword
             GROUP BY TYPE, EXTRACT(hour from create_at)
 SQL;
 
-        $stats = $this->connection->fetchAllKeyValue($sql, [
-            'date' => $searchInput->date,
+        $stats = $this->connection->fetchAllAssociative($sql, [
+            'date' => $searchInput->date->format($this->dateFormat),
+            'keyword' => "%$searchInput->keyword%",
         ]);
 
         $data = array_fill(0, 24, ['commit' => 0, 'pullRequest' => 0, 'comment' => 0]);
@@ -75,15 +81,16 @@ SQL;
     public function getLatest(SearchInput $searchInput): array
     {
         $sql = <<<SQL
-            SELECT type, repo
+            SELECT type, row_to_json(repo.*) as repo
             FROM event
+            INNER JOIN repo ON event.repo_id = repo.id
             WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            AND payload::text like :keyword
 SQL;
 
         $result = $this->connection->fetchAllAssociative($sql, [
-            'date' => $searchInput->date,
-            'keyword' => $searchInput->keyword,
+            'date' => $searchInput->date->format($this->dateFormat),
+            'keyword' => "%$searchInput->keyword%",
         ]);
 
         return array_map(static function ($item) {
